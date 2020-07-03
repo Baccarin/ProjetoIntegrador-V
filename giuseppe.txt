@@ -19,11 +19,11 @@ const char *password = "senha";
 
 
 //Declaração do pino que será utilizado e a memória alocada para armazenar o status deste pino na EEPROM
-#define led              16     // pino led           
-#define botao1           12     // botão 1 liga
-#define botao2           14     // botão 2 desliga
-WiFiClient espClient;                                 //Instância do WiFiClient
-PubSubClient client(espClient);                       //Passando a instância do WiFiClient para a instância do PubSubClient
+#define led              02 //PINO LED                
+#define botao1           12 // BOTÃO LIGAR
+#define botao2           14 // BoTÃO DESLIGAR
+WiFiClient eespClient;                                 //Instância do WiFiClient
+PubSubClient client(eespClient);                       //Passando a instância do WiFiClient para a instância do PubSubClient
 
 
 //Função para imprimir na porta serial
@@ -45,8 +45,8 @@ void reconectar() {
     
     //Tentativa de conectar. Se o MQTT precisa de autenticação, será chamada a função com autenticação, caso contrário, chama a sem autenticação. 
     bool conectado = strlen(servidor_mqtt_usuario) > 0 ?
-                     client.connect("ESP32guilherme", servidor_mqtt_usuario, servidor_mqtt_senha) :
-                     client.connect("ESP32guilherme");
+                     client.connect("ESP32giuseppe", servidor_mqtt_usuario, servidor_mqtt_senha) :
+                     client.connect("ESP32giuseppe");
 
     if(conectado) {
       imprimirSerial(true, "Conectado!");
@@ -85,21 +85,27 @@ void retorno(char* topico, byte* mensagem, unsigned int tamanho) {
   imprimirSerial(true, String(digitalRead(led)).c_str());
 
 // Aqui liga e desliga o pino
-  if(strMensagem == "ligarledguilherme"){
- digitalWrite(led, LOW);
+  if(strMensagem == "ligarledgiuseppe"){
+     digitalWrite(led, HIGH);
      delay(3000);
-    client.publish(mqtt_topico_pub, "Led Guilherme Ligado" );
-
-  } if(strMensagem == "desligarledguilherme"){
- digitalWrite(led, HIGH);
-    delay(3000);
-    client.publish(mqtt_topico_pub, "Led Guilherme Desigado" );
+     client.publish(mqtt_topico_pub, "Led Giuseppe Ligado" );
     
+
+  } if(strMensagem == "desligarledgiuseppe"){
+    digitalWrite(led, LOW);
+    delay(3000);
+    client.publish(mqtt_topico_pub, "Led Giuseppe Desligado" );
+  
   }
-  if(strMensagem == "deligatudo"){
+   if(strMensagem == "desligatudo"){
    digitalWrite(led, LOW);
    delay(3000);
-   client.publish(mqtt_topico_pub, "Todos os leds foram apagados" );
+   
+  } 
+ if(strMensagem == "ligatudo"){
+   digitalWrite(led, HIGH);
+   delay(3000);
+   
   } 
   imprimirSerial(false, "Status do pino depois de processar o comando: ");
   imprimirSerial(true, String(digitalRead(led)).c_str());
@@ -118,7 +124,9 @@ void setup() {
   //Fazendo o pino ser de saída, pois ele irá "controlar" algo.
   pinMode(led, OUTPUT);
   //Fazendo o pino ser de entrada
-  pinMode(botao, OUTPUT);
+  pinMode(botao1, OUTPUT);
+pinMode(botao2, OUTPUT);
+digitalWrite(led, LOW);
   //Se chegou até aqui é porque conectou na WiFi!
   imprimirSerial(true, "Conectado!! :)");
 
@@ -164,10 +172,11 @@ void loop() {
   // Se descomentar Publica mensagem no topico
   if (((digitalRead(botao1) == HIGH))){
   delay(1000);
-  client.publish(mqtt_topico_pub, "ligarledgiuseppe" );
+  client.publish(mqtt_topico_pub, "ligarledguilherme" );
   }
-  if (((digitalRead(botao2) == HIGH))){
+ 
+if (((digitalRead(botao2) == HIGH))){
   delay(1000);
-  client.publish(mqtt_topico_pub, "desligarledgiuseppe" );
+  client.publish(mqtt_topico_pub, "desligarledguilherme" );
   }
 }
